@@ -1,0 +1,14 @@
+{
+  "name": "connection",
+  "version": "1.0.0",
+  "description": "This is a simple PoC to connect a Nodejs app to Oracle atabase.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "oracledb": "^4.0.1"
+  }
+}
