@@ -1,0 +1,12 @@
+{
+  "name": "nodejs",
+  "version": "1.0.0",
+  "description": "Google Calendar API - PoC",
+  "main": "index.js",
+  "author": "Marcos A Vidolin de Lima",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "googleapis": "^47.0.0"
+  }
+}
