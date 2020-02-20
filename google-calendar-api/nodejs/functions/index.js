@@ -14,26 +14,46 @@ const calendar = google.calendar('v3');
  */
 exports.createEvent = functions.https.onRequest((req, res) => {
 
-    const serviceAccount = req.get('x-sa');
+    const privateKey = req.get('x-private-key');
+    const clientEmail = req.get('x-client-email');
     const calendarId = req.get('x-calendar-id');
     const appointment = safalyParse(req.body);
 
-    if (!serviceAccount) {
-        throw new Error('No service account informed.');
+
+    console.log(privateKey);
+
+    // console.log(`privateKey: ${privateKey}`);
+    // console.log(`clientEmail: ${clientEmail}`);
+    // console.log(`calendarId: ${calendarId}`);
+
+    if (!privateKey) {
+        res.status(409).send({
+            "message": "No privateKey informed."
+        });
+    }
+
+    if (!clientEmail) {
+        res.status(409).send({
+            "message": "No clientEmail informed."
+        });
     }
 
     if (!calendarId) {
-        throw new Error('No calendar ID informed.');
+        res.status(409).send({
+            "message": "No calendar ID informed."
+        });
     }
 
     if (!appointment) {
-        throw new Error('No appointment informed.');
+        res.status(409).send({
+            "message": "No appointment informed."
+        });
     }
 
     // Set up Google Calendar Service account credentials
     const serviceAccountAuth = new google.auth.JWT({
-        email: serviceAccount.client_email,
-        key: serviceAccount.private_key,
+        email: clientEmail,
+        key: privateKey,
         scopes: 'https://www.googleapis.com/auth/calendar'
     });
 
@@ -42,13 +62,12 @@ exports.createEvent = functions.https.onRequest((req, res) => {
         calendarId
     };
 
-    console.log(appointment);
-
     createCalendarEvent(appointment, options).then(() => {
         res.status(200).send({
             "message": "Ok, let me see if we can fit you in. is fine!."
         });
-    }).catch(() => {
+    }).catch((err) => {
+        console.log(err);
         res.status(409).send({
             "message": "I'm sorry, there are no slots available for."
         });
@@ -69,7 +88,7 @@ const safalyParse = content => {
  * @param {*} appointment 
  * @param {*} options 
  */
-function createCalendarEvent(appointment, options) {
+const createCalendarEvent = (appointment, options) => {
 
     const {
         startAt,
@@ -87,8 +106,8 @@ function createCalendarEvent(appointment, options) {
         calendar.events.list({
             auth: serviceAccountAuth,
             calendarId: calendarId,
-            timeMin: startAt.toISOString(),
-            timeMax: endAt.toISOString()
+            timeMin: new Date(startAt).toISOString(),
+            timeMax: new Date(endAt).toISOString()
         }, (err, calendarResponse) => {
             // Check if there is a event already on the Calendar
             if (err || calendarResponse.data.items.length > 0) {
